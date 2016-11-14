@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: i9C8jegCWClxB3vJnBVe5rrCG85XXQ6GUNGBBdtKh4q/ORsPULphTHdXFlMRp+E4Xco7j8/gEHGtpL9WcpFyLVuqIvvLhG0KT9Nf8M+2m/aX/6saWJmo8hcFEiK/GjCIHoye7dc84BfOOJaY7Li8/WxzwD9G0jEmod9CoeHDIMmAjAL8RCxYCuXZ7R0FXdtqgESX56wa+22K16o3FpngBEoesE0x81ujAa8Vzy+WvWltUOKyxLJee09PDSgm9oNdijJDN2lgJFAH5PkGmTuSTb1I93zMtyYOF4yA1LsAIj0KKYMpiw4N9WAo0lclegE4hDKgIR+Sd38eS1qctZWzBvTp7ihucDMb6tGjKxhrjIh6nxzyHodhsTal+ocPYxetOMixr+8IODKawF9PE8bXAStjUp5dWh8KyeFH8RRpGC2fpnQh38sCTcBBlan1ZIpgWUJPojyD/+iK+ZwBZ8n3iczS42n8kKl1KGYzYH8zSCI0pT7Yitp8x7RYUyneJKMJLmrV7CsVg60Rqwk72BMGDENbU4AXbC35yaW7rvPn6TaavVbPJzJ44a2YtqmWXLImIKHY6FG0rF81zX0FoBPIYNWul1JJloX7veZOxShyBbAfm3uIxRU7xCAU8RQF90x93p55/niXdB5fZlzUz4SyqdYGmuOGReDJAEqiX+OXv5A=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Heart-of-Rome-A-Tale-of-the-Lost-Water_5847
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
